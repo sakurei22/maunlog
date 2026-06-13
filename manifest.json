@@ -1,0 +1,15 @@
+{
+  "name": "마운로그",
+  "short_name": "마운로그",
+  "description": "마운자로 투약·체중·식사·운동 기록 다이어리",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#0ea5e9",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
