@@ -57,6 +57,12 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 label.fld{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin:0 0 6px}
 .in{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:13px;background:var(--soft2);font-size:16px;outline:none;transition:.15s;color:var(--ink)}
 .in:focus{border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-soft)}
+/* iOS Safari input normalize — native 스타일 제거 */
+.in,select.in,textarea.in{-webkit-appearance:none;appearance:none;background-clip:padding-box}
+select.in{padding-right:38px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>");background-repeat:no-repeat;background-position:right 14px center;background-size:12px 8px}
+input[type=date].in,input[type=time].in,input[type=datetime-local].in{min-height:50px;text-align:left}
+input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and-time-value,input[type=datetime-local]::-webkit-date-and-time-value{text-align:left;margin:0}
+input::-webkit-datetime-edit{padding:0}
 textarea.in{resize:vertical;min-height:90px;line-height:1.6}
 .row{display:flex;gap:10px}
 .row>*{flex:1}
@@ -144,6 +150,30 @@ textarea.in{resize:vertical;min-height:90px;line-height:1.6}
 .mealtabs{display:flex;background:var(--soft);border-radius:12px;padding:4px;gap:4px;margin-bottom:14px}
 .mealtabs button{flex:1;padding:9px;border-radius:9px;font-weight:700;font-size:13.5px;color:var(--muted)}
 .mealtabs button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+
+/* day view toggle (타일/일지) */
+.daymode{display:flex;background:var(--soft);border-radius:12px;padding:4px;gap:4px;margin:12px 0 0}
+.daymode button{flex:1;padding:9px;border-radius:9px;font-weight:800;font-size:13.5px;color:var(--muted)}
+.daymode button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.drow.mv{align-items:flex-start}
+.dnote{font-size:13.5px;color:var(--muted);line-height:1.6;margin-top:5px;white-space:pre-wrap;word-break:break-word}
+.ddiary{font-size:14.5px;line-height:1.75;white-space:pre-wrap;word-break:break-word}
+/* 일지 뷰: 중간 크기 사진 썸네일 */
+#dayBody .dthumb{width:84px;height:84px;border-radius:13px;margin-left:auto}
+#dayBody .drow.mv{gap:12px}
+/* 단일 카드 보기 (한눈에) */
+.daycard{padding:4px 18px 12px}
+.daytitle{font-size:15px;font-weight:800;padding:14px 2px 8px;display:flex;align-items:center;gap:7px}
+.daytitle .r{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700}
+.daytitle+.drow{border-top:none}
+#dayBody .daycard .drow{padding:11px 0}
+#dayBody .daycard .dthumb{width:54px;height:54px;border-radius:12px}
+.emptyrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:13px 0 2px;border-top:1px solid var(--line);margin-top:4px;font-size:12.5px;color:var(--muted);font-weight:700}
+.emptyrow .ec{background:var(--soft);border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:700;color:var(--brand-d);cursor:pointer}
+.emptyrow .ec:active{background:var(--soft2)}
+.examt{display:flex;align-items:center;gap:10px;margin-top:8px}
+.examt .exname{min-width:72px;font-weight:800;font-size:13.5px;flex-shrink:0}
+.examt input{flex:1;min-width:0}
 
 /* injection tab */
 .due{display:flex;align-items:center;gap:14px;padding:16px;border-radius:14px;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff;margin-bottom:4px}
@@ -276,6 +306,10 @@ img.preview{width:100%;border-radius:12px;max-height:300px;object-fit:cover}
   <section class="view active" id="v-today">
     <div id="hero"></div>
     <div id="backupBanner"></div>
+    <div class="daymode" id="dayMode">
+      <button data-m="grid" class="on">✏️ 입력</button>
+      <button data-m="read">📖 보기</button>
+    </div>
     <div id="dayBody"></div>
   </section>
 
@@ -400,6 +434,7 @@ img.preview{width:100%;border-radius:12px;max-height:300px;object-fit:cover}
   <div class="modalphoto" id="mealPhoto"><span>📷 사진 추가</span><input type="file" id="mealFile" accept="image/*" capture="environment"></div>
   <label class="fld">시간</label><input class="in" id="mealTime" type="time">
   <label class="fld">식사 후 식욕</label><div class="appet" id="mealAppet"></div>
+  <label class="fld">내용 · 메모</label><textarea class="in" id="mealNote" style="min-height:74px" placeholder="먹은 음식이나 메모 (사진 없이 글로 남겨도 돼요)"></textarea>
   <div class="actrow"><button class="btn ghost" id="mealClear">이 끼니 지우기</button><button class="btn" id="mealDone">완료</button></div>
 </div></div>
 
@@ -431,7 +466,8 @@ img.preview{width:100%;border-radius:12px;max-height:300px;object-fit:cover}
 <div class="modal" id="exModal"><div class="sheet">
   <h3>🏃 운동</h3>
   <div class="toggle" id="exDidToggle"><button data-v="1" class="pos">✅ 운동함</button><button data-v="0">🛋️ 휴식</button></div>
-  <div id="exModalChipsWrap" style="margin-top:14px;display:none"><label class="fld">어떤 운동을 했나요?</label><div class="chips" id="exModalChips"></div></div>
+  <div id="exModalChipsWrap" style="margin-top:14px;display:none"><label class="fld">어떤 운동을 했나요? (여러 개 선택 가능)</label><div class="chips" id="exModalChips"></div>
+    <div id="exAmounts" style="margin-top:6px"></div></div>
   <div class="actrow"><button class="btn ghost" id="exClear">지우기</button><button class="btn" id="exSave">저장</button></div>
 </div></div>
 
@@ -519,11 +555,12 @@ function compress(file,max=720,quality=0.55){return new Promise((res,rej)=>{
 
 /* ---------- state ---------- */
 let curDate=ymd(new Date()),curEntry=null,view='today',_shotsCache=[],_entriesCache=[];
-function blankEntry(date){return{date,wAM:'',wPM:'',ex:{did:null,types:[]},
-  meals:{breakfast:{time:'',photoId:'',appetite:''},lunch:{time:'',photoId:'',appetite:''},dinner:{time:'',photoId:'',appetite:''}},
+function blankEntry(date){return{date,wAM:'',wPM:'',ex:{did:null,items:[]},
+  meals:{breakfast:{time:'',photoId:'',appetite:'',note:''},lunch:{time:'',photoId:'',appetite:'',note:''},dinner:{time:'',photoId:'',appetite:'',note:''}},
   snacks:[],water:0,se:[],seNote:'',diary:'',mood:''};}
-function normalize(e){e.mood=e.mood||'';e.snacks=e.snacks||[];e.water=e.water||0;e.se=e.se||[];e.ex=e.ex||{did:null,types:[]};
-  e.meals=e.meals||{};for(const k of['breakfast','lunch','dinner']){e.meals[k]=e.meals[k]||{time:'',photoId:'',appetite:''};e.meals[k].appetite=e.meals[k].appetite||'';}return e;}
+function normalize(e){e.mood=e.mood||'';e.snacks=e.snacks||[];e.water=e.water||0;e.se=e.se||[];e.ex=e.ex||{did:null,items:[]};
+  if(!e.ex.items)e.ex.items=(e.ex.types||[]).map(t=>({type:t,amount:''}));delete e.ex.types;
+  e.meals=e.meals||{};for(const k of['breakfast','lunch','dinner']){e.meals[k]=e.meals[k]||{time:'',photoId:'',appetite:'',note:''};e.meals[k].appetite=e.meals[k].appetite||'';e.meals[k].note=e.meals[k].note||'';}return e;}
 async function refreshCaches(){_entriesCache=await all('entries');_shotsCache=(await all('shots')).sort((a,b)=>a.time.localeCompare(b.time));}
 
 /* ---------- cycle helpers ---------- */
@@ -606,7 +643,12 @@ function tile(act,data,icon,label,value,isPh,sub,span){
     <div class="tv ${isPh?'ph':''}">${value}</div>
     ${sub?`<div class="tsub">${sub}</div>`:''}</div>`;
 }
-function renderDayBody(){
+let dayMode='grid';
+function renderDayBody(){if(dayMode==='read')renderReadView();else renderGridView();}
+$('#dayMode').onclick=e=>{const b=e.target.closest('button');if(!b)return;dayMode=b.dataset.m;$$('#dayMode button').forEach(x=>x.classList.toggle('on',x.dataset.m===dayMode));renderDayBody();};
+function viewPhoto(pid,title){$('#pmTitle').textContent=title||'사진';$('#pmImg').src='';get('photos',pid).then(p=>{if(p)$('#pmImg').src=p.data;});openSheet('photoModal');}
+
+function renderGridView(){
   const e=curEntry,s=S.get(),ci=cycleInfo(curDate),startW=parseFloat(s.startWeight),goal=waterGoal();
   const shots=_shotsCache.filter(x=>ymd(new Date(x.time))===curDate).sort((a,b)=>a.time.localeCompare(b.time));
   let h='<div class="tilegrid">';
@@ -626,10 +668,10 @@ function renderDayBody(){
   // 간식·음료
   h+=tile('snacks','','🍪','간식·음료',e.snacks.length?`${e.snacks.length}개`:'추가하기',!e.snacks.length,'');
   // 물
-  h+=tile('water','','💧','물',e.water?`${e.water}/${goal}컵`:'기록하기',!e.water,e.water?`약 ${(e.water*0.25).toFixed(2)}L`:'');
+  h+=tile('waterinc','','💧','물',e.water?`${e.water}/${goal}컵`:'＋1컵',!e.water,e.water?`약 ${(e.water*0.25).toFixed(2)}L · 탭하면 +1`:'탭하면 +1컵');
   // 운동
   let exVal,exPh=false;
-  if(e.ex.did===1)exVal=e.ex.types.length?esc(e.ex.types[0])+(e.ex.types.length>1?` 외 ${e.ex.types.length-1}`:''):'운동함';
+  if(e.ex.did===1){const its=e.ex.items||[];exVal=its.length?esc(its[0].type)+(its[0].amount?` ${esc(its[0].amount)}`:'')+(its.length>1?` 외 ${its.length-1}`:''):'운동함';}
   else if(e.ex.did===0)exVal='휴식 🛋️';else{exVal='기록하기';exPh=true;}
   h+=tile('ex','','🏃','운동',exVal,exPh,'');
   // 부작용
@@ -646,10 +688,68 @@ function renderDayBody(){
   h+='</div>';
   $('#dayBody').innerHTML=h;
 }
+
+function renderReadView(){
+  const e=curEntry,s=S.get(),ci=cycleInfo(curDate),goal=waterGoal(),startW=parseFloat(s.startWeight);
+  const shots=_shotsCache.filter(x=>ymd(new Date(x.time))===curDate).sort((a,b)=>a.time.localeCompare(b.time));
+  const wNow=parseFloat(e.wAM)||parseFloat(e.wPM);
+  const wDiff=(startW&&wNow)?`시작 ${startW-wNow>=0?'▼':'▲'}${Math.abs(startW-wNow).toFixed(1)}kg`:'';
+  const empty=[];
+  let h=`<div class="dsec daycard"><div class="daytitle">${fmtKDate(curDate)}${wDiff?`<span class="r">${wDiff}</span>`:''}</div>`;
+  // 주사
+  if(shots.length)shots.forEach(sh=>{const dt=new Date(sh.time);
+    h+=`<div class="drow tap" data-act="shot"><span class="dl">💉 주사</span><span class="dv">${sh.dose}mg · ${pad(dt.getHours())}:${pad(dt.getMinutes())}${sh.note?' · '+esc(sh.note):''}</span><span class="chev">›</span></div>`;});
+  else empty.push({act:'shot',label:'💉 주사'});
+  // 몸무게
+  if(e.wAM||e.wPM){const parts=[];if(e.wAM)parts.push(`🌅 ${parseFloat(e.wAM).toFixed(1)}`);if(e.wPM)parts.push(`🌙 ${parseFloat(e.wPM).toFixed(1)}`);
+    h+=`<div class="drow tap" data-act="weight" data-f="${e.wAM?'wAM':'wPM'}"><span class="dl">⚖️ 몸무게</span><span class="dv">${parts.join('　·　')} kg</span><span class="chev">›</span></div>`;}
+  else empty.push({act:'weight',f:'wAM',label:'⚖️ 몸무게'});
+  // 식사 (기록된 끼니만, 탭하면 사진·상세)
+  let anyMeal=false;
+  ['breakfast','lunch','dinner'].forEach(k=>{const m=e.meals[k];if(!(m.time||m.appetite||m.note||m.photoId))return;anyMeal=true;
+    const meta=`${m.time||''}${m.appetite?(m.time?' · ':'')+appetMap[m.appetite]:''}`;
+    h+=`<div class="drow tap mv" data-act="meal" data-k="${k}"><div style="flex:1;min-width:0">
+      <div style="display:flex;gap:8px;align-items:center"><span class="dl">${mealIcons[k]} ${mealLabels[k]}</span><span class="dv">${meta||'기록'}</span></div>
+      ${m.note?`<div class="dnote">${esc(m.note)}</div>`:''}</div>
+      ${m.photoId?`<div class="dthumb" data-pid="${m.photoId}" data-title="${mealLabels[k]} 식사"></div>`:'<span class="chev">›</span>'}</div>`;});
+  if(!anyMeal)empty.push({act:'meals',label:'🍽️ 식사'});
+  // 간식·음료
+  if(e.snacks.length)e.snacks.forEach(sk=>{h+=`<div class="drow tap mv" data-act="snacks"><div style="flex:1;min-width:0">
+      <div style="display:flex;gap:8px;align-items:center"><span class="dl">${sk.kind==='drink'?'🥤 음료':'🍪 간식'}</span><span class="dv">${sk.time||''}</span></div>
+      ${sk.note?`<div class="dnote">${esc(sk.note)}</div>`:''}</div>
+      ${sk.photoId?`<div class="dthumb" data-pid="${sk.photoId}" data-title="${sk.kind==='drink'?'음료':'간식'}"></div>`:'<span class="chev">›</span>'}</div>`;});
+  else empty.push({act:'snacks',label:'🍪 간식'});
+  // 물
+  if(e.water)h+=`<div class="drow tap" data-act="water"><span class="dl">💧 물</span><span class="dv">${e.water} / ${goal}컵 · 약 ${(e.water*0.25).toFixed(2)}L</span><span class="chev">›</span></div>`;
+  else empty.push({act:'water',label:'💧 물'});
+  // 운동
+  if(e.ex.did!=null){const its=e.ex.items||[];
+    if(e.ex.did===1&&its.length)h+=`<div class="drow tap mv" data-act="ex"><div style="flex:1;min-width:0">
+      <span class="dl">🏃 운동</span><div class="dnote" style="margin-top:5px">${its.map(it=>esc(it.type)+(it.amount?` · ${esc(it.amount)}`:'')).join('\n')}</div></div><span class="chev">›</span></div>`;
+    else h+=`<div class="drow tap" data-act="ex"><span class="dl">🏃 운동</span><span class="dv">${e.ex.did===1?'운동함':'휴식 🛋️'}</span><span class="chev">›</span></div>`;}
+  else empty.push({act:'ex',label:'🏃 운동'});
+  // 부작용
+  if(e.se.length||e.seNote)h+=`<div class="drow tap mv" data-act="se"><div style="flex:1;min-width:0">
+    <div style="display:flex;gap:8px;align-items:center"><span class="dl">🤢 부작용</span><span class="dv">${e.se.length?esc(e.se.join(', ')):''}</span>${ci&&ci.sinceLast!=null?`<span class="dv" style="margin-left:auto;color:var(--muted);font-weight:700;flex:0">주사 후 ${ci.sinceLast}일</span>`:''}</div>
+    ${e.seNote?`<div class="dnote">${esc(e.seNote)}</div>`:''}</div><span class="chev">›</span></div>`;
+  else empty.push({act:'se',label:'🤢 부작용'});
+  // 일기
+  if(e.diary||e.mood)h+=`<div class="drow tap" data-act="diary" style="display:block">
+    <div style="display:flex;gap:8px;align-items:center${e.diary?';margin-bottom:6px':''}"><span class="dl">📔 일기</span>${e.mood?`<span class="dv">${moodMap[e.mood]}</span>`:''}</div>
+    ${e.diary?`<div class="ddiary">${esc(e.diary)}</div>`:''}</div>`;
+  else empty.push({act:'diary',label:'📔 일기'});
+  // 빈 항목: 탭하여 추가
+  if(empty.length)h+=`<div class="emptyrow"><span>비어있음</span>${empty.map(x=>`<span class="ec" data-act="${x.act}"${x.f?` data-f="${x.f}"`:''}>＋ ${x.label}</span>`).join('')}</div>`;
+  h+=`</div>`;
+  $('#dayBody').innerHTML=h;
+  $$('#dayBody .dthumb[data-pid]').forEach(el=>{get('photos',el.dataset.pid).then(p=>{if(p)el.style.backgroundImage=`url(${p.data})`;});el.onclick=ev=>{ev.stopPropagation();viewPhoto(el.dataset.pid,el.dataset.title);};});
+}
 $('#dayBody').onclick=e=>{const el=e.target.closest('[data-act]');if(!el)return;const a=el.dataset.act;
   if(a==='weight')openWeightModal(el.dataset.f);
   else if(a==='meals')openMealModal(null);
+  else if(a==='meal')openMealModal(el.dataset.k);
   else if(a==='snacks')openSnacksSheet();
+  else if(a==='waterinc')addWater(1);
   else if(a==='water')openWaterModal();
   else if(a==='ex')openExModal();
   else if(a==='se')openSEModal();
@@ -689,17 +789,19 @@ function firstMealSlot(){return ['breakfast','lunch','dinner'].find(k=>{const m=
 function openMealModal(k){mealKey=k||firstMealSlot();renderMealTabs();fillMeal();openSheet('mealModal');}
 function renderMealTabs(){$('#mealTabs').innerHTML=['breakfast','lunch','dinner'].map(k=>`<button data-k="${k}" class="${k===mealKey?'on':''}">${mealIcons[k]} ${mealLabels[k]}</button>`).join('');}
 $('#mealTabs').onclick=e=>{const b=e.target.closest('button');if(!b)return;mealKey=b.dataset.k;renderMealTabs();fillMeal();};
-function fillMeal(){const m=curEntry.meals[mealKey];$('#mealTime').value=m.time||'';renderMealAppet(m.appetite);renderModalPhoto('mealPhoto',m.photoId);}
+function fillMeal(){const m=curEntry.meals[mealKey];$('#mealTime').value=m.time||'';$('#mealNote').value=m.note||'';renderMealAppet(m.appetite);renderModalPhoto('mealPhoto',m.photoId);}
 function renderMealAppet(sel){$('#mealAppet').innerHTML=APPET.map(([v,t])=>`<button data-v="${v}" class="${sel===v?'on':''}">${t}</button>`).join('');}
 $('#mealAppet').onclick=async e=>{const b=e.target.closest('button');if(!b)return;const m=curEntry.meals[mealKey];m.appetite=m.appetite===b.dataset.v?'':b.dataset.v;renderMealAppet(m.appetite);await saveDay();renderDay();};
 $('#mealTime').onchange=async()=>{curEntry.meals[mealKey].time=$('#mealTime').value;await saveDay();renderDay();};
+let _dsT;function debSave(){clearTimeout(_dsT);_dsT=setTimeout(()=>saveDay(),500);}
+$('#mealNote').oninput=()=>{curEntry.meals[mealKey].note=$('#mealNote').value;debSave();};
 $('#mealFile').onchange=async()=>{const f=$('#mealFile').files[0];if(!f)return;
   const data=await compress(f),pid='p_'+curDate+'_'+mealKey;await put('photos',{id:pid,data});
   curEntry.meals[mealKey].photoId=pid;const def={breakfast:'08:00',lunch:'12:30',dinner:'19:00'}[mealKey];
   if(!curEntry.meals[mealKey].time){curEntry.meals[mealKey].time=def;$('#mealTime').value=def;}
   await saveDay();renderModalPhoto('mealPhoto',pid);renderDay();toast('사진 저장됨 📷');};
-$('#mealClear').onclick=async()=>{const m=curEntry.meals[mealKey];if(m.photoId)await del('photos',m.photoId);curEntry.meals[mealKey]={time:'',photoId:'',appetite:''};fillMeal();await saveDay();renderDay();toast('지움');};
-$('#mealDone').onclick=()=>closeSheet('mealModal');
+$('#mealClear').onclick=async()=>{const m=curEntry.meals[mealKey];if(m.photoId)await del('photos',m.photoId);curEntry.meals[mealKey]={time:'',photoId:'',appetite:'',note:''};fillMeal();await saveDay();renderDay();toast('지움');};
+$('#mealDone').onclick=async()=>{curEntry.meals[mealKey].note=$('#mealNote').value;await saveDay();renderDay();closeSheet('mealModal');};
 
 /* ---------- snacks sheet (list) ---------- */
 function openSnacksSheet(){renderSnacksList();openSheet('snacksSheet');}
@@ -731,6 +833,7 @@ $('#snackDel').onclick=async()=>{if(snackEditing.photoId)await del('photos',snac
 
 /* ---------- water modal ---------- */
 function openWaterModal(){renderWaterModal();openSheet('waterModal');}
+async function addWater(d){curEntry.water=Math.max(0,(curEntry.water||0)+d);await saveDay();renderDay();toast(`💧 ${curEntry.water}컵`);}
 function renderWaterModal(){const n=curEntry.water||0,goal=waterGoal();
   $('#waterModalN').textContent=n;$('#waterModalGoal').textContent=`/ ${goal} 컵 · 약 ${(n*0.25).toFixed(2)}L`;
   const box=$('#waterModalCups');box.innerHTML='';
@@ -743,15 +846,18 @@ $('#waterClose').onclick=()=>{closeSheet('waterModal');renderDay();};
 
 /* ---------- exercise modal ---------- */
 function openExModal(){renderExModal();openSheet('exModal');}
-function renderExModal(){const did=curEntry.ex.did;
+function renderExModal(){const did=curEntry.ex.did,items=curEntry.ex.items||(curEntry.ex.items=[]);
   $$('#exDidToggle button').forEach(b=>{const on=Number(b.dataset.v)===did;b.classList.toggle('on',on);b.classList.toggle('pos',b.dataset.v==='1');});
   $('#exModalChipsWrap').style.display=did===1?'block':'none';
-  $('#exModalChips').innerHTML=exTypes().map((t,i)=>`<button class="chip ${curEntry.ex.types.includes(t)?'on':''}" data-i="${i}">${esc(t)}</button>`).join('');}
+  const sel=new Set(items.map(it=>it.type));
+  $('#exModalChips').innerHTML=exTypes().map((t,i)=>`<button class="chip ${sel.has(t)?'on':''}" data-i="${i}">${esc(t)}</button>`).join('');
+  $('#exAmounts').innerHTML=items.map((it,idx)=>`<div class="examt"><span class="exname">${esc(it.type)}</span><input class="in" data-idx="${idx}" inputmode="text" placeholder="얼마나? 예: 30분 · 5km · 3세트" value="${esc(it.amount||'')}"></div>`).join('');}
 $('#exDidToggle').onclick=e=>{const b=e.target.closest('button');if(!b)return;curEntry.ex.did=Number(b.dataset.v);renderExModal();};
-$('#exModalChips').onclick=e=>{const b=e.target.closest('button');if(!b)return;const t=exTypes()[Number(b.dataset.i)];
-  const i=curEntry.ex.types.indexOf(t);if(i>=0)curEntry.ex.types.splice(i,1);else curEntry.ex.types.push(t);renderExModal();};
+$('#exModalChips').onclick=e=>{const b=e.target.closest('button');if(!b)return;const t=exTypes()[Number(b.dataset.i)];const items=curEntry.ex.items;
+  const i=items.findIndex(x=>x.type===t);if(i>=0)items.splice(i,1);else items.push({type:t,amount:''});renderExModal();};
+$('#exAmounts').oninput=e=>{const inp=e.target.closest('input[data-idx]');if(!inp)return;const it=curEntry.ex.items[Number(inp.dataset.idx)];if(it)it.amount=inp.value;};
 $('#exSave').onclick=async()=>{await saveDay();renderDay();closeSheet('exModal');toast('저장됨 ✓');};
-$('#exClear').onclick=async()=>{curEntry.ex={did:null,types:[]};await saveDay();renderDay();closeSheet('exModal');toast('지움');};
+$('#exClear').onclick=async()=>{curEntry.ex={did:null,items:[]};await saveDay();renderDay();closeSheet('exModal');toast('지움');};
 
 /* ---------- side-effect modal ---------- */
 function openSEModal(){const ci=cycleInfo(curDate);

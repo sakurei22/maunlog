@@ -1,6 +1,6 @@
 /* 오프라인 캐시 — 데이터는 IndexedDB에 있고, 여기선 앱 껍데기만 캐시.
    네트워크 우선(online이면 항상 최신) + 오프라인이면 캐시 폴백 */
-const CACHE = 'mounjaro-v2.3';
+const CACHE = 'mounjaro-v2.7';
 const ASSETS = ['./', './index.html', './manifest.json', './icon.svg'];
 
 self.addEventListener('install', e => {
